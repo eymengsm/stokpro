@@ -1,0 +1,2833 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StokPro - Elektronik & Telefon Mağazası</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#64748b'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans text-gray-900 dark:text-white transition-colors duration-300">
+    <header class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">📱 StokPro</h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Elektronik & Telefon</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Quick Stats -->
+                    <div class="hidden md:flex items-center space-x-4 text-sm">
+                        <div class="text-center">
+                            <div class="font-medium text-gray-900 dark:text-white" id="quickTotalProducts">0</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Ürün</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-medium text-green-600" id="quickTodaySales">₺0</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Bugün</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-medium text-yellow-600" id="quickLowStock">0</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Düşük Stok</div>
+                        </div>
+                    </div>
+                    
+                    <button id="themeToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+                    <div class="text-sm text-gray-600 dark:text-gray-300 hidden md:block cursor-pointer" id="companyInfo">
+                        <div class="font-medium" id="companyName">EYMEN MOBILE ELEKTRONİK</div>
+                        <div class="text-xs" id="companyPhone">+90 555 123 45 67</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 sticky top-16 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex space-x-8 overflow-x-auto">
+                <button class="nav-btn py-4 px-2 border-b-2 border-primary text-primary font-medium whitespace-nowrap" data-tab="dashboard">
+                    📊 Dashboard
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium whitespace-nowrap" data-tab="inventory">
+                    📦 Stok Yönetimi
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium whitespace-nowrap" data-tab="sales">
+                    💰 Satışlar
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium whitespace-nowrap" data-tab="customers">
+                    👥 Müşteriler
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium whitespace-nowrap" data-tab="reports">
+                    📈 Raporlar
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium whitespace-nowrap" data-tab="settings">
+                    ⚙️ Ayarlar
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content">
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100">Toplam Ürün</p>
+                            <p class="text-3xl font-bold" id="totalProducts">0</p>
+                            <p class="text-sm text-blue-100 mt-1">Stok miktarı</p>
+                        </div>
+                        <div class="text-4xl opacity-80">📱</div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100">Bugünkü Satış</p>
+                            <p class="text-3xl font-bold" id="todaySales">₺0</p>
+                            <p class="text-sm text-green-100 mt-1">Günlük ciro</p>
+                        </div>
+                        <div class="text-4xl opacity-80">💰</div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg shadow p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-100">Düşük Stok</p>
+                            <p class="text-3xl font-bold" id="lowStock">0</p>
+                            <p class="text-sm text-yellow-100 mt-1">Acil müdahale</p>
+                        </div>
+                        <div class="text-4xl opacity-80">⚠️</div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100">Toplam Kar</p>
+                            <p class="text-3xl font-bold" id="totalProfit">₺0</p>
+                            <p class="text-sm text-purple-100 mt-1">Net kar</p>
+                        </div>
+                        <div class="text-4xl opacity-80">📈</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow p-6 border dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Son Satışlar</h3>
+                    <div id="recentSales" class="space-y-3 max-h-64 overflow-y-auto">
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Hızlı İşlemler</h3>
+                    <div class="space-y-3">
+                        <button id="quickSaleBtn" class="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg font-medium transition-colors">
+                            💰 Hızlı Satış
+                        </button>
+                        <button id="quickAddProductBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-medium transition-colors">
+                            📦 Ürün Ekle
+                        </button>
+                        <button id="quickAddCustomerBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg font-medium transition-colors">
+                            👤 Müşteri Ekle
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Tab -->
+        <div id="inventory" class="tab-content hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Stok Yönetimi</h2>
+                <button id="addProductBtn" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    ➕ Yeni Ürün Ekle
+                </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow border dark:border-gray-700 mb-6">
+                <div class="p-4 border-b dark:border-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <input type="text" id="searchProduct" placeholder="Ürün, marka, model ara..." class="px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <select id="categoryFilter" class="px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Tüm Kategoriler</option>
+                            <option value="Telefon">Telefon</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Aksesuar">Aksesuar</option>
+                            <option value="Kulaklık">Kulaklık</option>
+                            <option value="Laptop">Laptop</option>
+                            <option value="Saat">Akıllı Saat</option>
+                            <option value="Kamera">Kamera</option>
+                        </select>
+                        <select id="brandFilter" class="px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Tüm Markalar</option>
+                            <option value="Apple">Apple</option>
+                            <option value="Samsung">Samsung</option>
+                            <option value="Xiaomi">Xiaomi</option>
+                            <option value="Huawei">Huawei</option>
+                            <option value="Oppo">Oppo</option>
+                            <option value="Vivo">Vivo</option>
+                            <option value="Realme">Realme</option>
+                            <option value="OnePlus">OnePlus</option>
+                            <option value="Sony">Sony</option>
+                            <option value="LG">LG</option>
+                        </select>
+                        <select id="conditionFilter" class="px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Tüm Durumlar</option>
+                            <option value="Sıfır">Sıfır</option>
+                            <option value="Sıfır Ayarında">Sıfır Ayarında</option>
+                            <option value="Az Kullanılmış">Az Kullanılmış</option>
+                            <option value="İyi Durumda">İyi Durumda</option>
+                            <option value="Orta Durumda">Orta Durumda</option>
+                            <option value="Hasarlı">Hasarlı</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <select id="stockFilter" class="px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Tüm Stok Durumları</option>
+                            <option value="out">Tükenen (0)</option>
+                            <option value="low">Düşük (1-4)</option>
+                            <option value="normal">Normal (5+)</option>
+                        </select>
+                        <select id="colorFilter" class="px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Tüm Renkler</option>
+                            <option value="Siyah">Siyah</option>
+                            <option value="Beyaz">Beyaz</option>
+                            <option value="Gri">Gri</option>
+                            <option value="Space Gray">Space Gray</option>
+                            <option value="Gece Yarısı">Gece Yarısı</option>
+                            <option value="Mavi">Mavi</option>
+                            <option value="Açık Mavi">Açık Mavi</option>
+                            <option value="Lacivert">Lacivert</option>
+                            <option value="Yeşil">Yeşil</option>
+                            <option value="Açık Yeşil">Açık Yeşil</option>
+                            <option value="Koyu Yeşil">Koyu Yeşil</option>
+                            <option value="Mor">Mor</option>
+                            <option value="Açık Mor">Açık Mor</option>
+                            <option value="Koyu Mor">Koyu Mor</option>
+                            <option value="Kırmızı">Kırmızı</option>
+                            <option value="Pembe">Pembe</option>
+                            <option value="Açık Pembe">Açık Pembe</option>
+                            <option value="Altın">Altın</option>
+                            <option value="Rose Gold">Rose Gold</option>
+                            <option value="Gümüş">Gümüş</option>
+                            <option value="Bronz">Bronz</option>
+                            <option value="Titanyum">Titanyum</option>
+                            <option value="Sarı">Sarı</option>
+                            <option value="Turuncu">Turuncu</option>
+                            <option value="Kahverengi">Kahverengi</option>
+                            <option value="Coral">Coral</option>
+                            <option value="Mint">Mint</option>
+                            <option value="Lavanta">Lavanta</option>
+                        </select>
+                        <button id="clearFilters" class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
+                            🗑️ Filtreleri Temizle
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Product Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ürün</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Özellikler</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Durum</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stok</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Seri No</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Alış Fiyatı</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Satış Fiyatı</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kar</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Tab -->
+        <div id="sales" class="tab-content hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">💰 Satış İşlemleri</h2>
+                <button id="newSaleBtn" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    💰 Yeni Satış Yap
+                </button>
+            </div>
+
+            <!-- Sales Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-medium text-green-100 mb-1">Bugün</h3>
+                            <p class="text-3xl font-bold" id="todayTotal">₺0</p>
+                            <p class="text-sm text-green-100 mt-1" id="todayCount">0 satış</p>
+                        </div>
+                        <div class="text-4xl opacity-80">📈</div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-medium text-blue-100 mb-1">Bu Hafta</h3>
+                            <p class="text-3xl font-bold" id="weekTotal">₺0</p>
+                            <p class="text-sm text-blue-100 mt-1" id="weekCount">0 satış</p>
+                        </div>
+                        <div class="text-4xl opacity-80">📊</div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-medium text-purple-100 mb-1">Bu Ay</h3>
+                            <p class="text-3xl font-bold" id="monthTotal">₺0</p>
+                            <p class="text-sm text-purple-100 mt-1" id="monthCount">0 satış</p>
+                        </div>
+                        <div class="text-4xl opacity-80">📅</div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-medium text-orange-100 mb-1">Toplam Kar</h3>
+                            <p class="text-3xl font-bold" id="totalSalesProfit">₺0</p>
+                            <p class="text-sm text-orange-100 mt-1">Net kar</p>
+                        </div>
+                        <div class="text-4xl opacity-80">💎</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Filters and Search -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow border dark:border-gray-700 mb-6">
+                <div class="p-6 border-b dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🔍 Satış Filtreleri</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Başlangıç Tarihi</label>
+                            <input type="date" id="salesDateFrom" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bitiş Tarihi</label>
+                            <input type="date" id="salesDateTo" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Müşteri Ara</label>
+                            <input type="text" id="salesCustomerSearch" placeholder="Müşteri adı..." class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fatura No</label>
+                            <input type="text" id="salesInvoiceSearch" placeholder="INV-001..." class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+                    <div class="flex gap-3 mt-4">
+                        <button id="clearSalesFilters" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm">
+                            🗑️ Filtreleri Temizle
+                        </button>
+                        <button id="exportSalesReport" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm">
+                            📊 Rapor İndir
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Table -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow border dark:border-gray-700">
+                <div class="p-4 border-b dark:border-gray-700">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">📋 Satış Listesi</h3>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            Toplam: <span id="filteredSalesCount" class="font-medium">0</span> satış
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tarih & Saat</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fatura No</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ürünler</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Müşteri</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tutar</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kar</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="salesTableEmpty" class="hidden p-8 text-center">
+                    <div class="text-gray-400 text-6xl mb-4">📋</div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Henüz satış yok</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-4">İlk satışınızı yapmak için "Yeni Satış Yap" butonuna tıklayın.</p>
+                    <button onclick="document.getElementById('newSaleBtn').click()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        💰 İlk Satışı Yap
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customers Tab -->
+        <div id="customers" class="tab-content hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Müşteri Yönetimi</h2>
+                <button id="addCustomerBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    👤 Yeni Müşteri
+                </button>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow border dark:border-gray-700">
+                <div class="p-4 border-b dark:border-gray-700">
+                    <input type="text" id="searchCustomer" placeholder="Müşteri ara..." class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Müşteri</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Telefon</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">E-posta</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Toplam Alışveriş</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Raporlar ve Analizler</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">En Çok Satan Ürünler</h3>
+                    <div id="topProducts" class="space-y-3">
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Stok Durumu</h3>
+                    <div id="stockStatus" class="space-y-3">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Ayarlar</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Company Settings -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏢 Firma Bilgileri</h3>
+                    <form id="companyForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Firma Adı</label>
+                            <input type="text" id="settingsCompanyName" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Firma adınızı girin">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefon</label>
+                            <input type="tel" id="settingsCompanyPhone" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="+90 555 123 45 67">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-posta</label>
+                            <input type="email" id="settingsCompanyEmail" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="info@firmaniz.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Adres</label>
+                            <textarea id="settingsCompanyAddress" rows="3" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Firma adresinizi girin"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            💾 Firma Bilgilerini Kaydet
+                        </button>
+                    </form>
+                </div>
+
+                <!-- System Settings -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">⚙️ Sistem Ayarları</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Karanlık Tema</label>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Arayüz temasını değiştir</p>
+                            </div>
+                            <button id="settingsThemeToggle" class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 dark:bg-gray-600 transition-colors focus:outline-none">
+                                <span id="settingsThemeSlider" class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1"></span>
+                            </button>
+                        </div>
+                        
+                        <div class="border-t dark:border-gray-600 pt-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Minimum Stok Uyarı Seviyesi</label>
+                            <input type="number" id="settingsMinStock" min="1" value="5" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Bu değerin altındaki ürünler düşük stok olarak işaretlenir</p>
+                        </div>
+
+                        <div class="border-t dark:border-gray-600 pt-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Para Birimi</label>
+                            <select id="settingsCurrency" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="₺">Türk Lirası (₺)</option>
+                                <option value="$">Amerikan Doları ($)</option>
+                                <option value="€">Euro (€)</option>
+                            </select>
+                        </div>
+
+                        <button id="saveSystemSettings" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            💾 Sistem Ayarlarını Kaydet
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <div class="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6 border dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">📊 Veri Yönetimi</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button id="exportData" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        📤 Verileri Dışa Aktar
+                    </button>
+                    <button id="importData" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        📥 Verileri İçe Aktar
+                    </button>
+                    <button id="resetData" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        🗑️ Tüm Verileri Sıfırla
+                    </button>
+                </div>
+                <input type="file" id="importFile" accept=".json" class="hidden">
+            </div>
+        </div>
+    </main>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg">
+            <div class="p-6 border-b dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Ürün Ekle/Düzenle</h3>
+            </div>
+            <form id="productForm" class="p-6 space-y-4">
+                <input type="hidden" id="productId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ürün Adı</label>
+                    <input type="text" id="productName" required class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategori</label>
+                    <select id="productCategory" required class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">Kategori Seçin</option>
+                        <option value="Telefon">Telefon</option>
+                        <option value="Tablet">Tablet</option>
+                        <option value="Aksesuar">Aksesuar</option>
+                        <option value="Kulaklık">Kulaklık</option>
+                        <option value="Laptop">Laptop</option>
+                        <option value="Saat">Akıllı Saat</option>
+                        <option value="Kamera">Kamera</option>
+                    </select>
+                </div>
+                
+                <!-- Product Specifications -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Marka</label>
+                        <select id="productBrand" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Marka Seçin</option>
+                            <option value="Apple">Apple</option>
+                            <option value="Samsung">Samsung</option>
+                            <option value="Xiaomi">Xiaomi</option>
+                            <option value="Huawei">Huawei</option>
+                            <option value="Oppo">Oppo</option>
+                            <option value="Vivo">Vivo</option>
+                            <option value="Realme">Realme</option>
+                            <option value="OnePlus">OnePlus</option>
+                            <option value="Sony">Sony</option>
+                            <option value="LG">LG</option>
+                            <option value="Diğer">Diğer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model</label>
+                        <input type="text" id="productModel" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Örn: iPhone 15 Pro Max">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Renk</label>
+                        <select id="productColor" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Renk Seçin</option>
+                            <option value="Siyah">Siyah</option>
+                            <option value="Beyaz">Beyaz</option>
+                            <option value="Gri">Gri</option>
+                            <option value="Space Gray">Space Gray</option>
+                            <option value="Gece Yarısı">Gece Yarısı</option>
+                            <option value="Mavi">Mavi</option>
+                            <option value="Açık Mavi">Açık Mavi</option>
+                            <option value="Lacivert">Lacivert</option>
+                            <option value="Yeşil">Yeşil</option>
+                            <option value="Açık Yeşil">Açık Yeşil</option>
+                            <option value="Koyu Yeşil">Koyu Yeşil</option>
+                            <option value="Mor">Mor</option>
+                            <option value="Açık Mor">Açık Mor</option>
+                            <option value="Koyu Mor">Koyu Mor</option>
+                            <option value="Kırmızı">Kırmızı</option>
+                            <option value="Pembe">Pembe</option>
+                            <option value="Açık Pembe">Açık Pembe</option>
+                            <option value="Altın">Altın</option>
+                            <option value="Rose Gold">Rose Gold</option>
+                            <option value="Gümüş">Gümüş</option>
+                            <option value="Bronz">Bronz</option>
+                            <option value="Titanyum">Titanyum</option>
+                            <option value="Sarı">Sarı</option>
+                            <option value="Turuncu">Turuncu</option>
+                            <option value="Kahverengi">Kahverengi</option>
+                            <option value="Coral">Coral</option>
+                            <option value="Mint">Mint</option>
+                            <option value="Lavanta">Lavanta</option>
+                            <option value="Diğer">Diğer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hafıza (GB)</label>
+                        <select id="productStorage" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Hafıza Seçin</option>
+                            <option value="32">32 GB</option>
+                            <option value="64">64 GB</option>
+                            <option value="128">128 GB</option>
+                            <option value="256">256 GB</option>
+                            <option value="512">512 GB</option>
+                            <option value="1024">1 TB</option>
+                            <option value="2048">2 TB</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RAM (GB)</label>
+                        <select id="productRam" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">RAM Seçin</option>
+                            <option value="2">2 GB</option>
+                            <option value="3">3 GB</option>
+                            <option value="4">4 GB</option>
+                            <option value="6">6 GB</option>
+                            <option value="8">8 GB</option>
+                            <option value="12">12 GB</option>
+                            <option value="16">16 GB</option>
+                            <option value="18">18 GB</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Durum</label>
+                        <select id="productCondition" required class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Durum Seçin</option>
+                            <option value="Sıfır">Sıfır</option>
+                            <option value="Sıfır Ayarında">Sıfır Ayarında</option>
+                            <option value="Az Kullanılmış">Az Kullanılmış</option>
+                            <option value="İyi Durumda">İyi Durumda</option>
+                            <option value="Orta Durumda">Orta Durumda</option>
+                            <option value="Hasarlı">Hasarlı</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Garanti</label>
+                        <select id="productWarranty" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Garanti Durumu</option>
+                            <option value="Yok">Garanti Yok</option>
+                            <option value="3 Ay">3 Ay Mağaza Garantisi</option>
+                            <option value="6 Ay">6 Ay Mağaza Garantisi</option>
+                            <option value="1 Yıl">1 Yıl Mağaza Garantisi</option>
+                            <option value="Apple Türkiye">Apple Türkiye Garantisi</option>
+                            <option value="Samsung Türkiye">Samsung Türkiye Garantisi</option>
+                            <option value="Distribütör">Distribütör Garantisi</option>
+                            <option value="İthalatçı">İthalatçı Garantisi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stok Miktarı</label>
+                        <input type="number" id="productStock" required min="0" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Minimum Stok</label>
+                        <input type="number" id="productMinStock" min="0" value="5" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Additional Features -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pil Durumu (%)</label>
+                        <select id="productBattery" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Pil Durumu Seçin</option>
+                            <option value="100">100% (Yeni)</option>
+                            <option value="95-99">95-99% (Mükemmel)</option>
+                            <option value="90-94">90-94% (Çok İyi)</option>
+                            <option value="85-89">85-89% (İyi)</option>
+                            <option value="80-84">80-84% (Orta)</option>
+                            <option value="75-79">75-79% (Düşük)</option>
+                            <option value="70-74">70-74% (Zayıf)</option>
+                            <option value="<70">%70'in Altında</option>
+                            <option value="Değiştirildi">Pil Değiştirildi</option>
+                            <option value="Bilinmiyor">Bilinmiyor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ekran Durumu</label>
+                        <select id="productScreen" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Ekran Durumu</option>
+                            <option value="Mükemmel">Mükemmel</option>
+                            <option value="Çok İyi">Çok İyi</option>
+                            <option value="İyi">İyi</option>
+                            <option value="Hafif Çizik">Hafif Çizik</option>
+                            <option value="Çizikli">Çizikli</option>
+                            <option value="Kırık">Kırık</option>
+                            <option value="Değiştirildi">Ekran Değiştirildi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kasa Durumu</label>
+                        <select id="productCase" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Kasa Durumu</option>
+                            <option value="Mükemmel">Mükemmel</option>
+                            <option value="Çok İyi">Çok İyi</option>
+                            <option value="İyi">İyi</option>
+                            <option value="Hafif Çizik">Hafif Çizik</option>
+                            <option value="Çizikli">Çizikli</option>
+                            <option value="Ezik">Ezik</option>
+                            <option value="Hasarlı">Hasarlı</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kutu/Aksesuar</label>
+                        <select id="productBox" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Kutu Durumu</option>
+                            <option value="Tam Kutulu">Tam Kutulu</option>
+                            <option value="Kutu + Şarj Aleti">Kutu + Şarj Aleti</option>
+                            <option value="Kutu + Kablo">Kutu + Kablo</option>
+                            <option value="Sadece Kutu">Sadece Kutu</option>
+                            <option value="Kutusuz">Kutusuz</option>
+                            <option value="Sadece Şarj Aleti">Sadece Şarj Aleti</option>
+                            <option value="Aksesuar Yok">Aksesuar Yok</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SIM Durumu</label>
+                        <select id="productSim" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">SIM Durumu</option>
+                            <option value="Açık">Açık (Unlocked)</option>
+                            <option value="Turkcell">Turkcell Kilitli</option>
+                            <option value="Vodafone">Vodafone Kilitli</option>
+                            <option value="Türk Telekom">Türk Telekom Kilitli</option>
+                            <option value="Bilinmiyor">Bilinmiyor</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">İşletim Sistemi</label>
+                        <input type="text" id="productOS" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Örn: iOS 17.2, Android 14">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Özel Özellikler</label>
+                        <input type="text" id="productFeatures" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Face ID, Touch ID, 5G, vb.">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Açıklama/Notlar</label>
+                    <textarea id="productDescription" rows="2" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Ürün hakkında ek bilgiler, kusurlar, özellikler vb."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alış Fiyatı (₺)</label>
+                        <input type="number" id="productCostPrice" required min="0" step="0.01" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Satış Fiyatı (₺)</label>
+                        <input type="number" id="productPrice" required min="0" step="0.01" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+                <div id="serialNumberSection" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Seri Numaraları</label>
+                    <div id="serialNumbers" class="space-y-2">
+                        <div class="flex gap-2">
+                            <input type="text" class="serial-input flex-1 px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Seri numarası girin">
+                            <button type="button" class="add-serial bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm">+</button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Her telefon için ayrı seri numarası ekleyin</p>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="cancelProduct" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">İptal</button>
+                    <button type="submit" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sale Modal -->
+    <div id="saleModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl">
+            <div class="p-6 border-b dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Yeni Satış</h3>
+            </div>
+            <form id="saleForm" class="p-6">
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Müşteri <span class="text-red-500">*</span></label>
+                        <div class="flex gap-2">
+                            <select id="saleCustomer" required class="flex-1 px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="">Müşteri Seçin (Zorunlu)</option>
+                            </select>
+                            <button type="button" id="addNewCustomerBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap">
+                                + Yeni Müşteri
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fatura No</label>
+                        <input type="text" id="invoiceNumber" readonly class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+                
+                <!-- Sale Items -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-md font-medium text-gray-900 dark:text-white">Satış Kalemleri</h4>
+                        <button type="button" id="addSaleItem" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">+ Ürün Ekle</button>
+                    </div>
+                    <div id="saleItems" class="space-y-3">
+                        <div class="sale-item grid grid-cols-12 gap-2 items-center">
+                            <div class="col-span-5">
+                                <select class="sale-product w-full px-2 py-1 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                                    <option value="">Ürün Seçin</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2">
+                                <input type="number" class="sale-quantity w-full px-2 py-1 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm" min="1" value="1">
+                            </div>
+                            <div class="col-span-2">
+                                <input type="number" class="sale-price w-full px-2 py-1 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm" step="0.01">
+                            </div>
+                            <div class="col-span-2">
+                                <span class="sale-total text-sm font-medium">₺0</span>
+                            </div>
+                            <div class="col-span-1">
+                                <button type="button" class="remove-item text-red-600 hover:text-red-800 text-sm">×</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sale Summary -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                    <div class="flex justify-between items-center text-lg font-bold">
+                        <span>Toplam:</span>
+                        <span id="grandTotal">₺0</span>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancelSale" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">İptal</button>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">💰 Satış Yap ve Fiş Yazdır</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Serial Numbers Modal -->
+    <div id="serialModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-6 border-b dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Seri Numaraları</h3>
+            </div>
+            <div class="p-6">
+                <div id="serialList" class="space-y-2 max-h-64 overflow-y-auto">
+                </div>
+                <div class="flex justify-end pt-4">
+                    <button id="closeSerialModal" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Modal -->
+    <div id="customerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-6 border-b dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Müşteri Ekle/Düzenle</h3>
+            </div>
+            <form id="customerForm" class="p-6 space-y-4">
+                <input type="hidden" id="customerId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ad Soyad</label>
+                    <input type="text" id="customerName" required class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefon</label>
+                    <input type="tel" id="customerPhone" required class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-posta</label>
+                    <input type="email" id="customerEmail" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Adres</label>
+                    <textarea id="customerAddress" rows="3" class="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="cancelCustomer" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">İptal</button>
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sale Detail Modal -->
+    <div id="saleDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">📋 Satış Detayları</h3>
+                    <button id="closeSaleDetail" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <!-- Sale Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                        <h4 class="font-medium text-blue-900 dark:text-blue-300 mb-3">💼 Satış Bilgileri</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Fatura No:</span>
+                                <span class="font-medium text-gray-900 dark:text-white" id="detailInvoiceNumber">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Tarih:</span>
+                                <span class="font-medium text-gray-900 dark:text-white" id="detailDate">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Saat:</span>
+                                <span class="font-medium text-gray-900 dark:text-white" id="detailTime">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                        <h4 class="font-medium text-green-900 dark:text-green-300 mb-3">👤 Müşteri Bilgileri</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Ad Soyad:</span>
+                                <span class="font-medium text-gray-900 dark:text-white" id="detailCustomerName">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Telefon:</span>
+                                <span class="font-medium text-gray-900 dark:text-white" id="detailCustomerPhone">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">E-posta:</span>
+                                <span class="font-medium text-gray-900 dark:text-white" id="detailCustomerEmail">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="mb-6">
+                    <h4 class="font-medium text-gray-900 dark:text-white mb-3">🛍️ Satılan Ürünler</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ürün</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Adet</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Birim Fiyat</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Toplam</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Kar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailProductsTable" class="divide-y divide-gray-200 dark:divide-gray-700">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="detailTotalAmount">₺0</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Toplam Tutar</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600" id="detailTotalProfit">₺0</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Toplam Kar</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-purple-600" id="detailProfitMargin">%0</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Kar Marjı</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-end gap-3 mt-6 pt-4 border-t dark:border-gray-700">
+                    <button id="printDetailReceipt" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        📄 Fiş Yazdır
+                    </button>
+                    <button id="closeSaleDetailBtn" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                        Kapat
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let products = JSON.parse(localStorage.getItem('stokpro_products')) || [];
+        let customers = JSON.parse(localStorage.getItem('stokpro_customers')) || [];
+        let sales = JSON.parse(localStorage.getItem('stokpro_sales')) || [];
+        let settings = JSON.parse(localStorage.getItem('stokpro_settings')) || {
+            companyName: 'EYMEN MOBILE ELEKTRONİK',
+            companyPhone: '+90 555 123 45 67',
+            companyEmail: '',
+            companyAddress: '',
+            minStock: 5,
+            currency: '₺',
+            theme: 'light'
+        };
+
+        // Initialize with sample data
+        if (products.length === 0) {
+            products = [
+                { 
+                    id: 1, 
+                    name: 'iPhone 15 Pro', 
+                    category: 'Telefon', 
+                    brand: 'Apple',
+                    model: 'iPhone 15 Pro',
+                    color: 'Titanyum',
+                    storage: '256',
+                    ram: '8',
+                    condition: 'Sıfır',
+                    warranty: 'Apple Türkiye',
+                    battery: '100',
+                    screen: 'Mükemmel',
+                    case: 'Mükemmel',
+                    box: 'Tam Kutulu',
+                    sim: 'Açık',
+                    os: 'iOS 17.2',
+                    features: 'Face ID, 5G, ProRAW',
+                    description: 'Titanium kasa, A17 Pro çip, Action Button',
+                    stock: 15, 
+                    costPrice: 35000, 
+                    price: 45000, 
+                    sold: 8, 
+                    minStock: 5, 
+                    serialNumbers: ['IP15P001', 'IP15P002', 'IP15P003'] 
+                },
+                { 
+                    id: 2, 
+                    name: 'Samsung Galaxy S24', 
+                    category: 'Telefon', 
+                    brand: 'Samsung',
+                    model: 'Galaxy S24',
+                    color: 'Açık Mor',
+                    storage: '128',
+                    ram: '8',
+                    condition: 'Sıfır',
+                    warranty: 'Samsung Türkiye',
+                    battery: '100',
+                    screen: 'Mükemmel',
+                    case: 'Mükemmel',
+                    box: 'Tam Kutulu',
+                    sim: 'Açık',
+                    os: 'Android 14',
+                    features: 'Galaxy AI, S Pen uyumlu',
+                    description: 'AI özellikli kamera, 120Hz ekran',
+                    stock: 3, 
+                    costPrice: 25000, 
+                    price: 35000, 
+                    sold: 12, 
+                    minStock: 5, 
+                    serialNumbers: ['SGS24001', 'SGS24002'] 
+                },
+                { 
+                    id: 3, 
+                    name: 'iPad Air', 
+                    category: 'Tablet', 
+                    brand: 'Apple',
+                    model: 'iPad Air 5',
+                    color: 'Gümüş',
+                    storage: '256',
+                    ram: '8',
+                    condition: 'Sıfır',
+                    warranty: 'Apple Türkiye',
+                    battery: '100',
+                    screen: 'Mükemmel',
+                    case: 'Mükemmel',
+                    box: 'Tam Kutulu',
+                    os: 'iPadOS 17',
+                    features: 'Apple Pencil 2 uyumlu, M1 çip',
+                    description: 'M1 çipli, 10.9 inç Liquid Retina ekran',
+                    stock: 8, 
+                    costPrice: 18000, 
+                    price: 25000, 
+                    sold: 5, 
+                    minStock: 3 
+                },
+                { 
+                    id: 4, 
+                    name: 'AirPods Pro', 
+                    category: 'Kulaklık', 
+                    brand: 'Apple',
+                    model: 'AirPods Pro 2',
+                    color: 'Beyaz',
+                    storage: '',
+                    ram: '',
+                    condition: 'Sıfır',
+                    warranty: 'Apple Türkiye',
+                    battery: '100',
+                    case: 'Mükemmel',
+                    box: 'Tam Kutulu',
+                    features: 'ANC, Spatial Audio, MagSafe',
+                    description: 'Aktif gürültü engelleme, H2 çip',
+                    stock: 25, 
+                    costPrice: 6000, 
+                    price: 8500, 
+                    sold: 15, 
+                    minStock: 10 
+                },
+                { 
+                    id: 5, 
+                    name: 'iPhone 13', 
+                    category: 'Telefon', 
+                    brand: 'Apple',
+                    model: 'iPhone 13',
+                    color: 'Mavi',
+                    storage: '128',
+                    ram: '4',
+                    condition: 'Az Kullanılmış',
+                    warranty: '6 Ay',
+                    battery: '90-94',
+                    screen: 'Çok İyi',
+                    case: 'İyi',
+                    box: 'Kutu + Şarj Aleti',
+                    sim: 'Açık',
+                    os: 'iOS 17.1',
+                    features: 'Face ID, Cinematic Mode',
+                    description: 'Temiz, hafif kullanım izleri',
+                    stock: 2, 
+                    costPrice: 18000, 
+                    price: 22000, 
+                    sold: 30, 
+                    minStock: 5,
+                    serialNumbers: ['IP13001', 'IP13002']
+                }
+            ];
+            saveData();
+        }
+
+        if (customers.length === 0) {
+            customers = [
+                { id: 1, name: 'Ahmet Yılmaz', phone: '0532 123 45 67', email: 'ahmet@email.com', address: 'Kadıköy, İstanbul', totalPurchases: 45000 },
+                { id: 2, name: 'Fatma Demir', phone: '0541 987 65 43', email: 'fatma@email.com', address: 'Beşiktaş, İstanbul', totalPurchases: 8500 },
+                { id: 3, name: 'Mehmet Kaya', phone: '0555 111 22 33', email: 'mehmet@email.com', address: 'Üsküdar, İstanbul', totalPurchases: 25000 }
+            ];
+            saveData();
+        }
+
+        if (sales.length === 0) {
+            const today = new Date().toISOString().split('T')[0];
+            sales = [
+                { id: 1, invoiceNumber: 'INV-001', items: [{productId: 1, quantity: 1, price: 45000}], customerId: 1, total: 45000, date: today, time: '14:30' },
+                { id: 2, invoiceNumber: 'INV-002', items: [{productId: 4, quantity: 1, price: 8500}], customerId: 2, total: 8500, date: today, time: '15:45' },
+                { id: 3, invoiceNumber: 'INV-003', items: [{productId: 3, quantity: 1, price: 25000}], customerId: 3, total: 25000, date: '2024-01-15', time: '10:20' }
+            ];
+            saveData();
+        }
+
+        // Theme Management
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const isDark = localStorage.getItem('theme') === 'dark' || settings.theme === 'dark';
+
+        if (isDark) {
+            document.documentElement.classList.add('dark');
+            themeIcon.textContent = '☀️';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            themeIcon.textContent = isDarkMode ? '☀️' : '🌙';
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            settings.theme = isDarkMode ? 'dark' : 'light';
+            saveData();
+        });
+
+        // Company Info Update
+        function updateCompanyDisplay() {
+            document.getElementById('companyName').textContent = settings.companyName;
+            document.getElementById('companyPhone').textContent = settings.companyPhone;
+        }
+
+        // Tab Management
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                
+                navBtns.forEach(b => {
+                    b.classList.remove('border-primary', 'text-primary');
+                    b.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-300');
+                });
+                
+                btn.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-300');
+                btn.classList.add('border-primary', 'text-primary');
+                
+                tabContents.forEach(content => content.classList.add('hidden'));
+                document.getElementById(tabId).classList.remove('hidden');
+                
+                // Load tab-specific content
+                switch(tabId) {
+                    case 'dashboard':
+                        updateDashboard();
+                        break;
+                    case 'inventory':
+                        renderProducts();
+                        break;
+                    case 'sales':
+                        renderSales();
+                        break;
+                    case 'customers':
+                        renderCustomers();
+                        break;
+                    case 'reports':
+                        renderReports();
+                        break;
+                    case 'settings':
+                        loadSettings();
+                        break;
+                }
+            });
+        });
+
+        // Save Data Function
+        function saveData() {
+            localStorage.setItem('stokpro_products', JSON.stringify(products));
+            localStorage.setItem('stokpro_customers', JSON.stringify(customers));
+            localStorage.setItem('stokpro_sales', JSON.stringify(sales));
+            localStorage.setItem('stokpro_settings', JSON.stringify(settings));
+        }
+
+        // Settings Functions
+        function loadSettings() {
+            document.getElementById('settingsCompanyName').value = settings.companyName;
+            document.getElementById('settingsCompanyPhone').value = settings.companyPhone;
+            document.getElementById('settingsCompanyEmail').value = settings.companyEmail || '';
+            document.getElementById('settingsCompanyAddress').value = settings.companyAddress || '';
+            document.getElementById('settingsMinStock').value = settings.minStock;
+            document.getElementById('settingsCurrency').value = settings.currency;
+            
+            // Update theme toggle
+            const isDark = document.documentElement.classList.contains('dark');
+            const slider = document.getElementById('settingsThemeSlider');
+            const toggle = document.getElementById('settingsThemeToggle');
+            
+            if (isDark) {
+                slider.classList.add('translate-x-6');
+                toggle.classList.add('bg-blue-600');
+                toggle.classList.remove('bg-gray-200');
+            } else {
+                slider.classList.remove('translate-x-6');
+                toggle.classList.remove('bg-blue-600');
+                toggle.classList.add('bg-gray-200');
+            }
+        }
+
+        // Dashboard Functions
+        function updateDashboard() {
+            const totalProducts = products.reduce((sum, p) => sum + p.stock, 0);
+            const lowStockCount = products.filter(p => p.stock <= (p.minStock || settings.minStock)).length;
+            const todaySales = getTodaySales();
+            const totalProfit = calculateTotalProfit();
+            
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('quickTotalProducts').textContent = totalProducts;
+            document.getElementById('lowStock').textContent = lowStockCount;
+            document.getElementById('quickLowStock').textContent = lowStockCount;
+            document.getElementById('todaySales').textContent = `${settings.currency}${todaySales.toLocaleString('tr-TR')}`;
+            document.getElementById('quickTodaySales').textContent = `${settings.currency}${todaySales.toLocaleString('tr-TR')}`;
+            document.getElementById('totalProfit').textContent = `${settings.currency}${totalProfit.toLocaleString('tr-TR')}`;
+            
+            renderRecentSales();
+        }
+
+        function getTodaySales() {
+            const today = new Date().toISOString().split('T')[0];
+            return sales.filter(s => s.date === today).reduce((sum, s) => sum + s.total, 0);
+        }
+
+        function calculateTotalProfit() {
+            return sales.reduce((totalProfit, sale) => {
+                return totalProfit + sale.items.reduce((saleProfit, item) => {
+                    const product = products.find(p => p.id === item.productId);
+                    if (product) {
+                        const profit = (item.price - (product.costPrice || 0)) * item.quantity;
+                        return saleProfit + profit;
+                    }
+                    return saleProfit;
+                }, 0);
+            }, 0);
+        }
+
+        function renderRecentSales() {
+            const container = document.getElementById('recentSales');
+            const recentSales = sales.slice(-10).reverse();
+            
+            container.innerHTML = recentSales.map(sale => {
+                const customer = sale.customerId ? customers.find(c => c.id === sale.customerId) : null;
+                const productNames = sale.items.map(item => {
+                    const product = products.find(p => p.id === item.productId);
+                    return product ? product.name : 'Silinmiş Ürün';
+                }).join(', ');
+                
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white">${productNames}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                ${customer ? customer.name : (sale.customerId ? 'Silinmiş Müşteri' : 'Müşteri Seçilmedi')} - ${sale.date} ${sale.time}
+                            </div>
+                        </div>
+                        <div class="text-green-600 font-medium">${settings.currency}${sale.total.toLocaleString('tr-TR')}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Product Management
+        function renderProducts() {
+            const tbody = document.getElementById('productTable');
+            const searchTerm = document.getElementById('searchProduct').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const brandFilter = document.getElementById('brandFilter').value;
+            const conditionFilter = document.getElementById('conditionFilter').value;
+            const stockFilter = document.getElementById('stockFilter').value;
+            const colorFilter = document.getElementById('colorFilter').value;
+            
+            let filteredProducts = products.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
+                                    (product.brand && product.brand.toLowerCase().includes(searchTerm)) ||
+                                    (product.model && product.model.toLowerCase().includes(searchTerm)) ||
+                                    (product.description && product.description.toLowerCase().includes(searchTerm));
+                const matchesCategory = !categoryFilter || product.category === categoryFilter;
+                const matchesBrand = !brandFilter || product.brand === brandFilter;
+                const matchesCondition = !conditionFilter || product.condition === conditionFilter;
+                const matchesColor = !colorFilter || product.color === colorFilter;
+                let matchesStock = true;
+                
+                if (stockFilter === 'out') matchesStock = product.stock === 0;
+                else if (stockFilter === 'low') matchesStock = product.stock > 0 && product.stock < 5;
+                else if (stockFilter === 'normal') matchesStock = product.stock >= 5;
+                
+                return matchesSearch && matchesCategory && matchesBrand && matchesCondition && matchesColor && matchesStock;
+            });
+            
+            tbody.innerHTML = filteredProducts.map(product => {
+                const profit = product.price - (product.costPrice || 0);
+                
+                // Build specifications display
+                const specs = [];
+                if (product.brand) specs.push(product.brand);
+                if (product.color) specs.push(product.color);
+                if (product.storage) specs.push(`${product.storage}GB`);
+                if (product.ram) specs.push(`${product.ram}GB RAM`);
+                const specsText = specs.join(' • ');
+                
+                // Condition badge color
+                const conditionColors = {
+                    'Sıfır': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                    'Sıfır Ayarında': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                    'Az Kullanılmış': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+                    'İyi Durumda': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+                    'Orta Durumda': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+                    'Hasarlı': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                };
+                
+                return `
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">${product.name}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">${product.category}</div>
+                            ${product.description ? `<div class="text-xs text-gray-400 mt-1 max-w-48 truncate" title="${product.description}">${product.description}</div>` : ''}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-xs text-gray-900 dark:text-white">${specsText || '-'}</div>
+                            ${product.warranty ? `<div class="text-xs text-gray-500 dark:text-gray-400 mt-1">📋 ${product.warranty}</div>` : ''}
+                            ${product.battery ? `<div class="text-xs text-green-600 dark:text-green-400 mt-1">🔋 ${product.battery}</div>` : ''}
+                            ${product.screen ? `<div class="text-xs text-blue-600 dark:text-blue-400 mt-1">📱 ${product.screen}</div>` : ''}
+                            ${product.sim ? `<div class="text-xs text-purple-600 dark:text-purple-400 mt-1">📶 ${product.sim}</div>` : ''}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${conditionColors[product.condition] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}">
+                                ${product.condition || 'Belirtilmemiş'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm ${product.stock <= (product.minStock || settings.minStock) ? 'text-red-600 font-bold' : 'text-gray-900 dark:text-white'}">${product.stock}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                            ${product.category === 'Telefon' && product.serialNumbers && product.serialNumbers.length > 0 ? 
+                                `<div class="max-w-32 overflow-hidden">
+                                    <button onclick="showSerialNumbers(${product.id})" class="text-blue-600 hover:text-blue-800 text-xs">
+                                        ${product.serialNumbers.length} seri no
+                                    </button>
+                                </div>` : 
+                                '<span class="text-gray-400 text-xs">-</span>'
+                            }
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            ${settings.currency}${(product.costPrice || 0).toLocaleString('tr-TR')}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            ${settings.currency}${product.price.toLocaleString('tr-TR')}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                            ${settings.currency}${profit.toLocaleString('tr-TR')}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="editProduct(${product.id})" class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
+                            <button onclick="deleteProduct(${product.id})" class="text-red-600 hover:text-red-900">Sil</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Sales Management
+        function renderSales() {
+            updateSalesStats();
+            const tbody = document.getElementById('salesTable');
+            const emptyState = document.getElementById('salesTableEmpty');
+            const dateFrom = document.getElementById('salesDateFrom').value;
+            const dateTo = document.getElementById('salesDateTo').value;
+            const customerSearch = document.getElementById('salesCustomerSearch').value.toLowerCase();
+            const invoiceSearch = document.getElementById('salesInvoiceSearch').value.toLowerCase();
+            
+            let filteredSales = sales.filter(sale => {
+                let matchesDate = true;
+                if (dateFrom && sale.date < dateFrom) matchesDate = false;
+                if (dateTo && sale.date > dateTo) matchesDate = false;
+                
+                let matchesCustomer = true;
+                if (customerSearch) {
+                    const customer = sale.customerId ? customers.find(c => c.id === sale.customerId) : null;
+                    const customerName = customer ? customer.name.toLowerCase() : '';
+                    matchesCustomer = customerName.includes(customerSearch);
+                }
+                
+                let matchesInvoice = true;
+                if (invoiceSearch) {
+                    matchesInvoice = sale.invoiceNumber.toLowerCase().includes(invoiceSearch);
+                }
+                
+                return matchesDate && matchesCustomer && matchesInvoice;
+            });
+            
+            // Update filtered count
+            document.getElementById('filteredSalesCount').textContent = filteredSales.length;
+            
+            if (filteredSales.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            const salesWithDetails = filteredSales.map(sale => {
+                const customer = sale.customerId ? customers.find(c => c.id === sale.customerId) : null;
+                const productNames = sale.items.map(item => {
+                    const product = products.find(p => p.id === item.productId);
+                    return product ? `${product.name} (${item.quantity})` : `Silinmiş Ürün (${item.quantity})`;
+                }).join(', ');
+                
+                // Calculate profit for this sale
+                const saleProfit = sale.items.reduce((profit, item) => {
+                    const product = products.find(p => p.id === item.productId);
+                    if (product) {
+                        return profit + ((item.price - (product.costPrice || 0)) * item.quantity);
+                    }
+                    // For deleted products, assume 0 cost (full price as profit)
+                    return profit + (item.price * item.quantity);
+                }, 0);
+                
+                return {
+                    ...sale,
+                    productNames,
+                    customerName: customer ? customer.name : (sale.customerId ? 'Silinmiş Müşteri' : 'Müşteri Seçilmedi'),
+                    profit: saleProfit
+                };
+            }).sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
+            
+            tbody.innerHTML = salesWithDetails.map(sale => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        <div class="font-medium">${new Date(sale.date).toLocaleDateString('tr-TR')}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">${sale.time}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                            ${sale.invoiceNumber}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                        <div class="max-w-xs truncate" title="${sale.productNames}">
+                            ${sale.productNames}
+                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            ${sale.items.length} ürün
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mr-3">
+                                <span class="text-purple-600 dark:text-purple-300 text-xs font-medium">
+                                    ${sale.customerName.charAt(0).toUpperCase()}
+                                </span>
+                            </div>
+                            <div>
+                                <div class="font-medium">${sale.customerName}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="text-green-600 text-lg">${settings.currency}${sale.total.toLocaleString('tr-TR')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="text-orange-600 text-lg">${settings.currency}${sale.profit.toLocaleString('tr-TR')}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                            %${sale.total > 0 ? ((sale.profit / sale.total) * 100).toFixed(1) : '0'} marj
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex gap-2">
+                            <button onclick="viewSaleDetails(${sale.id})" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 transition-colors">
+                                👁️ Detay
+                            </button>
+                            <button onclick="printReceipt(${sale.id})" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800 transition-colors">
+                                📄 Fiş
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateSalesStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const thisWeek = getWeekStart(new Date()).toISOString().split('T')[0];
+            const thisMonth = new Date().toISOString().slice(0, 7);
+            
+            const todayStats = getSalesStats(s => s.date === today);
+            const weekStats = getSalesStats(s => s.date >= thisWeek);
+            const monthStats = getSalesStats(s => s.date.startsWith(thisMonth));
+            const totalProfit = calculateTotalProfit();
+            
+            document.getElementById('todayTotal').textContent = `${settings.currency}${todayStats.total.toLocaleString('tr-TR')}`;
+            document.getElementById('todayCount').textContent = `${todayStats.count} satış`;
+            document.getElementById('weekTotal').textContent = `${settings.currency}${weekStats.total.toLocaleString('tr-TR')}`;
+            document.getElementById('weekCount').textContent = `${weekStats.count} satış`;
+            document.getElementById('monthTotal').textContent = `${settings.currency}${monthStats.total.toLocaleString('tr-TR')}`;
+            document.getElementById('monthCount').textContent = `${monthStats.count} satış`;
+            document.getElementById('totalSalesProfit').textContent = `${settings.currency}${totalProfit.toLocaleString('tr-TR')}`;
+        }
+
+        function getSalesStats(filterFn) {
+            const filteredSales = sales.filter(filterFn);
+            return {
+                total: filteredSales.reduce((sum, s) => sum + s.total, 0),
+                count: filteredSales.length
+            };
+        }
+
+        function getWeekStart(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+        // Customer Management
+        function renderCustomers() {
+            const tbody = document.getElementById('customerTable');
+            const searchTerm = document.getElementById('searchCustomer').value.toLowerCase();
+            
+            const filteredCustomers = customers.filter(customer =>
+                customer.name.toLowerCase().includes(searchTerm) ||
+                customer.phone.includes(searchTerm) ||
+                (customer.email && customer.email.toLowerCase().includes(searchTerm))
+            );
+            
+            tbody.innerHTML = filteredCustomers.map(customer => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">${customer.name}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        ${customer.phone}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        ${customer.email || '-'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                        ${settings.currency}${customer.totalPurchases.toLocaleString('tr-TR')}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="editCustomer(${customer.id})" class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
+                        <button onclick="deleteCustomer(${customer.id})" class="text-red-600 hover:text-red-900">Sil</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Reports
+        function renderReports() {
+            renderTopProducts();
+            renderStockStatus();
+        }
+
+        function renderTopProducts() {
+            const topProducts = products
+                .filter(p => p.sold > 0)
+                .sort((a, b) => b.sold - a.sold)
+                .slice(0, 5);
+            
+            const container = document.getElementById('topProducts');
+            container.innerHTML = topProducts.map((product, index) => {
+                const revenue = product.sold * product.price;
+                
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="w-6 h-6 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center text-sm font-medium mr-3">
+                                ${index + 1}
+                            </span>
+                            <div>
+                                <div class="font-medium text-gray-900 dark:text-white">${product.name}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">${product.category}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-medium text-gray-900 dark:text-white">${product.sold} adet</div>
+                            <div class="text-sm text-green-600">${settings.currency}${revenue.toLocaleString('tr-TR')}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderStockStatus() {
+            const stockCategories = {
+                critical: products.filter(p => p.stock === 0),
+                low: products.filter(p => p.stock > 0 && p.stock <= (p.minStock || settings.minStock)),
+                normal: products.filter(p => p.stock > (p.minStock || settings.minStock))
+            };
+            
+            const container = document.getElementById('stockStatus');
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                        <div class="flex items-center">
+                            <span class="text-red-600 mr-2">🚨</span>
+                            <span class="font-medium text-red-800 dark:text-red-300">Tükenen Ürünler</span>
+                        </div>
+                        <span class="font-bold text-red-600">${stockCategories.critical.length}</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                        <div class="flex items-center">
+                            <span class="text-yellow-600 mr-2">⚠️</span>
+                            <span class="font-medium text-yellow-800 dark:text-yellow-300">Düşük Stok</span>
+                        </div>
+                        <span class="font-bold text-yellow-600">${stockCategories.low.length}</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                        <div class="flex items-center">
+                            <span class="text-green-600 mr-2">✅</span>
+                            <span class="font-medium text-green-800 dark:text-green-300">Normal Stok</span>
+                        </div>
+                        <span class="font-bold text-green-600">${stockCategories.normal.length}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Modal Functions
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Serial Number Functions
+        function showSerialNumbers(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product && product.serialNumbers) {
+                const container = document.getElementById('serialList');
+                container.innerHTML = product.serialNumbers.map((serial, index) => `
+                    <div class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                        <span class="text-sm font-mono">${serial}</span>
+                        <span class="text-xs text-gray-500">#${index + 1}</span>
+                    </div>
+                `).join('');
+                showModal('serialModal');
+            }
+        }
+
+        function updateSerialNumberSection() {
+            const category = document.getElementById('productCategory').value;
+            const section = document.getElementById('serialNumberSection');
+            const stockInput = document.getElementById('productStock');
+            
+            if (category === 'Telefon') {
+                section.classList.remove('hidden');
+                updateSerialInputs();
+            } else {
+                section.classList.add('hidden');
+            }
+        }
+
+        function updateSerialInputs() {
+            const stock = parseInt(document.getElementById('productStock').value) || 0;
+            const container = document.getElementById('serialNumbers');
+            const currentInputs = container.querySelectorAll('.serial-input').length;
+            
+            if (stock > currentInputs) {
+                // Add more inputs
+                for (let i = currentInputs; i < stock; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'flex gap-2';
+                    div.innerHTML = `
+                        <input type="text" class="serial-input flex-1 px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Seri numarası ${i + 1}">
+                        <button type="button" class="remove-serial text-red-600 hover:text-red-800 px-3 py-2 text-sm">×</button>
+                    `;
+                    container.appendChild(div);
+                }
+            } else if (stock < currentInputs) {
+                // Remove excess inputs
+                const inputs = container.querySelectorAll('.flex');
+                for (let i = currentInputs - 1; i >= stock; i--) {
+                    if (inputs[i]) inputs[i].remove();
+                }
+            }
+        }
+
+        function collectSerialNumbers() {
+            const inputs = document.querySelectorAll('.serial-input');
+            const serials = [];
+            inputs.forEach(input => {
+                if (input.value.trim()) {
+                    serials.push(input.value.trim());
+                }
+            });
+            return serials;
+        }
+
+        // Product Modal Functions
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (product) {
+                document.getElementById('productId').value = product.id;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productCategory').value = product.category;
+                document.getElementById('productBrand').value = product.brand || '';
+                document.getElementById('productModel').value = product.model || '';
+                document.getElementById('productColor').value = product.color || '';
+                document.getElementById('productStorage').value = product.storage || '';
+                document.getElementById('productRam').value = product.ram || '';
+                document.getElementById('productCondition').value = product.condition || '';
+                document.getElementById('productWarranty').value = product.warranty || '';
+                document.getElementById('productBattery').value = product.battery || '';
+                document.getElementById('productScreen').value = product.screen || '';
+                document.getElementById('productCase').value = product.case || '';
+                document.getElementById('productBox').value = product.box || '';
+                document.getElementById('productSim').value = product.sim || '';
+                document.getElementById('productOS').value = product.os || '';
+                document.getElementById('productFeatures').value = product.features || '';
+                document.getElementById('productDescription').value = product.description || '';
+                document.getElementById('productStock').value = product.stock;
+                document.getElementById('productMinStock').value = product.minStock || settings.minStock;
+                document.getElementById('productCostPrice').value = product.costPrice || 0;
+                document.getElementById('productPrice').value = product.price;
+                
+                // Handle serial numbers for phones
+                updateSerialNumberSection();
+                if (product.category === 'Telefon' && product.serialNumbers) {
+                    const inputs = document.querySelectorAll('.serial-input');
+                    product.serialNumbers.forEach((serial, index) => {
+                        if (inputs[index]) {
+                            inputs[index].value = serial;
+                        }
+                    });
+                }
+                
+                showModal('productModal');
+            }
+        }
+
+        function deleteProduct(id) {
+            console.log('🗑️ Ürün silme işlemi başlıyor, ID:', id);
+            
+            try {
+                const product = products.find(p => p.id === id);
+                if (!product) {
+                    console.error('❌ Ürün bulunamadı, ID:', id);
+                    alert('❌ Ürün bulunamadı!');
+                    return;
+                }
+                
+                console.log('📦 Silinecek ürün:', product.name);
+                
+                // Check if product has been sold
+                const soldCount = product.sold || 0;
+                console.log('📊 Satış sayısı:', soldCount);
+                
+                if (soldCount > 0) {
+                    const confirmMessage = `⚠️ DİKKAT!\n\n"${product.name}" ürünü daha önce ${soldCount} kez satılmış.\n\nÜrünü silerseniz:\n• Satış geçmişi korunacak\n• Raporlarda "Silinmiş Ürün" olarak görünecek\n• Bu işlem geri alınamaz\n\nYine de silmek istediğinizden emin misiniz?`;
+                    
+                    if (!confirm(confirmMessage)) {
+                        console.log('❌ Kullanıcı silme işlemini iptal etti (1. onay)');
+                        return;
+                    }
+                    
+                    // Second confirmation for sold products
+                    if (!confirm(`🔴 SON ONAY\n\n"${product.name}" ürünü kalıcı olarak silinecek.\n\nBu işlem GERİ ALINAMAZ!\n\nEmin misiniz?`)) {
+                        console.log('❌ Kullanıcı silme işlemini iptal etti (2. onay)');
+                        return;
+                    }
+                    
+                    console.log('✅ Kullanıcı satılmış ürün silme işlemini onayladı');
+                } else {
+                    if (!confirm(`🗑️ "${product.name}" ürünü silinecek.\n\nBu işlem geri alınamaz.\n\nEmin misiniz?`)) {
+                        console.log('❌ Kullanıcı silme işlemini iptal etti');
+                        return;
+                    }
+                    
+                    console.log('✅ Kullanıcı ürün silme işlemini onayladı');
+                }
+                
+                // Perform deletion
+                console.log('🔄 Ürün siliniyor...');
+                const originalLength = products.length;
+                products = products.filter(p => p.id !== id);
+                
+                if (products.length === originalLength - 1) {
+                    console.log('✅ Ürün başarıyla silindi');
+                    saveData();
+                    renderProducts();
+                    updateDashboard();
+                    
+                    // Show success message
+                    alert(`✅ "${product.name}" başarıyla silindi!${soldCount > 0 ? '\n\n📋 Satış kayıtları korundu ve "Silinmiş Ürün" olarak görünecek.' : ''}`);
+                } else {
+                    throw new Error('Ürün silinemedi - array filtresi başarısız');
+                }
+                
+            } catch (error) {
+                console.error('❌ Ürün silme hatası:', error);
+                console.error('Hata detayları:', {
+                    message: error.message,
+                    stack: error.stack,
+                    productId: id
+                });
+                
+                alert(`❌ Ürün silinirken hata oluştu!\n\nHata: ${error.message}\n\nLütfen tekrar deneyin.`);
+            }
+        }
+
+        // Customer Modal Functions
+        function editCustomer(id) {
+            const customer = customers.find(c => c.id === id);
+            if (customer) {
+                document.getElementById('customerId').value = customer.id;
+                document.getElementById('customerName').value = customer.name;
+                document.getElementById('customerPhone').value = customer.phone;
+                document.getElementById('customerEmail').value = customer.email || '';
+                document.getElementById('customerAddress').value = customer.address || '';
+                showModal('customerModal');
+            }
+        }
+
+        function deleteCustomer(id) {
+            console.log('🗑️ Müşteri silme işlemi başlıyor, ID:', id);
+            
+            try {
+                const customer = customers.find(c => c.id === id);
+                if (!customer) {
+                    console.error('❌ Müşteri bulunamadı, ID:', id);
+                    alert('❌ Müşteri bulunamadı!');
+                    return;
+                }
+                
+                console.log('👤 Silinecek müşteri:', customer.name);
+                
+                // Check if customer has sales history
+                const customerSales = sales.filter(s => s.customerId === id);
+                const salesCount = customerSales.length;
+                const totalPurchases = customer.totalPurchases || 0;
+                
+                console.log('📊 Müşteri istatistikleri:', {
+                    salesCount,
+                    totalPurchases
+                });
+                
+                if (salesCount > 0) {
+                    const confirmMessage = `⚠️ DİKKAT!\n\n"${customer.name}" müşterisinin:\n• ${salesCount} adet satış kaydı var\n• Toplam ${totalPurchases.toLocaleString('tr-TR')} ₺ alışveriş yapmış\n\nMüşteriyi silerseniz:\n• Satış kayıtları korunacak\n• Satışlarda "Silinmiş Müşteri" olarak görünecek\n• Bu işlem geri alınamaz\n\nYine de silmek istediğinizden emin misiniz?`;
+                    
+                    if (!confirm(confirmMessage)) {
+                        console.log('❌ Kullanıcı müşteri silme işlemini iptal etti (1. onay)');
+                        return;
+                    }
+                    
+                    // Second confirmation for customers with sales
+                    if (!confirm(`🔴 SON ONAY\n\n"${customer.name}" müşterisi kalıcı olarak silinecek.\n\nBu işlem GERİ ALINAMAZ!\n\nEmin misiniz?`)) {
+                        console.log('❌ Kullanıcı müşteri silme işlemini iptal etti (2. onay)');
+                        return;
+                    }
+                    
+                    console.log('✅ Kullanıcı satış geçmişi olan müşteri silme işlemini onayladı');
+                } else {
+                    if (!confirm(`🗑️ "${customer.name}" müşterisi silinecek.\n\nBu işlem geri alınamaz.\n\nEmin misiniz?`)) {
+                        console.log('❌ Kullanıcı müşteri silme işlemini iptal etti');
+                        return;
+                    }
+                    
+                    console.log('✅ Kullanıcı müşteri silme işlemini onayladı');
+                }
+                
+                // Perform deletion
+                console.log('🔄 Müşteri siliniyor...');
+                const originalLength = customers.length;
+                customers = customers.filter(c => c.id !== id);
+                
+                if (customers.length === originalLength - 1) {
+                    console.log('✅ Müşteri başarıyla silindi');
+                    saveData();
+                    renderCustomers();
+                    renderSales(); // Update sales list to show "Silinmiş Müşteri"
+                    
+                    // Show success message
+                    alert(`✅ "${customer.name}" başarıyla silindi!${salesCount > 0 ? '\n\n📋 Satış kayıtları korundu ve "Silinmiş Müşteri" olarak görünecek.' : ''}`);
+                } else {
+                    throw new Error('Müşteri silinemedi - array filtresi başarısız');
+                }
+                
+            } catch (error) {
+                console.error('❌ Müşteri silme hatası:', error);
+                console.error('Hata detayları:', {
+                    message: error.message,
+                    stack: error.stack,
+                    customerId: id
+                });
+                
+                alert(`❌ Müşteri silinirken hata oluştu!\n\nHata: ${error.message}\n\nLütfen tekrar deneyin.`);
+            }
+        }
+
+        // Sale Functions
+        function generateInvoiceNumber() {
+            const lastSale = sales.sort((a, b) => b.id - a.id)[0];
+            const lastNumber = lastSale ? parseInt(lastSale.invoiceNumber.split('-')[1]) : 0;
+            return `INV-${String(lastNumber + 1).padStart(3, '0')}`;
+        }
+
+        function updateSaleItemOptions() {
+            const selects = document.querySelectorAll('.sale-product');
+            const options = '<option value="">Ürün Seçin</option>' + 
+                products.filter(p => p.stock > 0).map(p => 
+                    `<option value="${p.id}" data-price="${p.price}">${p.name} (Stok: ${p.stock})</option>`
+                ).join('');
+            
+            selects.forEach(select => {
+                select.innerHTML = options;
+            });
+        }
+
+        function updateCustomerOptions() {
+            const select = document.getElementById('saleCustomer');
+            select.innerHTML = '<option value="">Müşteri Seçin (Zorunlu)</option>' +
+                customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        // PDF Receipt Generation
+        function generatePDFReceipt(sale) {
+            console.log('🖨️ PDF fiş oluşturma başlıyor...', sale);
+            
+            try {
+                // Check if jsPDF is available
+                if (typeof window.jspdf === 'undefined') {
+                    console.error('❌ jsPDF kütüphanesi bulunamadı');
+                    alert('❌ PDF kütüphanesi yüklenemedi!\n\nSayfa yenilenerek tekrar deneyin.');
+                    return false;
+                }
+                
+                console.log('✅ jsPDF kütüphanesi hazır');
+                const { jsPDF } = window.jspdf;
+                
+                // Create PDF document
+                const doc = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                console.log('📄 PDF dokümanı oluşturuldu');
+                
+                // Company info
+                const company = {
+                    name: settings.companyName || 'EYMEN MOBILE ELEKTRONIK',
+                    phone: settings.companyPhone || '+90 555 123 45 67',
+                    email: settings.companyEmail || '',
+                    address: settings.companyAddress || ''
+                };
+                
+                // Customer info
+                const customer = sale.customerId ? customers.find(c => c.id === sale.customerId) : null;
+                console.log('👤 Müşteri bilgisi:', customer ? customer.name : 'Müşteri yok');
+                
+                // Set font for better Turkish character support
+                doc.setFont('helvetica', 'normal');
+                
+                // Header - Company Name (centered)
+                doc.setFontSize(18);
+                doc.setTextColor(0, 0, 0);
+                const companyNameWidth = doc.getTextWidth(company.name);
+                doc.text(company.name, (210 - companyNameWidth) / 2, 20);
+                
+                // Company contact info (left side)
+                doc.setFontSize(9);
+                let contactY = 30;
+                doc.text(company.phone, 20, contactY);
+                
+                if (company.email) {
+                    contactY += 6;
+                    doc.text(company.email, 20, contactY);
+                }
+                
+                if (company.address) {
+                    contactY += 6;
+                    const addressLines = doc.splitTextToSize(company.address, 80);
+                    addressLines.forEach(line => {
+                        doc.text(line, 20, contactY);
+                        contactY += 6;
+                    });
+                }
+                
+                // Invoice info (right side)
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('SATIS FISI', 150, 20);
+                
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.text(`Fis No: ${sale.invoiceNumber}`, 150, 30);
+                doc.text(`Tarih: ${new Date(sale.date).toLocaleDateString('tr-TR')}`, 150, 36);
+                doc.text(`Saat: ${sale.time}`, 150, 42);
+                
+                // Separator line
+                doc.setLineWidth(0.5);
+                doc.line(20, 55, 190, 55);
+                
+                // Customer section
+                let currentY = 65;
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                doc.text('MUSTERI BILGILERI:', 20, currentY);
+                
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                currentY += 8;
+                
+                if (customer) {
+                    doc.text(`Ad Soyad: ${customer.name}`, 20, currentY);
+                    currentY += 6;
+                    doc.text(`Telefon: ${customer.phone}`, 20, currentY);
+                    currentY += 6;
+                    
+                    if (customer.email) {
+                        doc.text(`E-posta: ${customer.email}`, 20, currentY);
+                        currentY += 6;
+                    }
+                    
+                    if (customer.address) {
+                        const addressLines = doc.splitTextToSize(`Adres: ${customer.address}`, 160);
+                        addressLines.forEach(line => {
+                            doc.text(line, 20, currentY);
+                            currentY += 6;
+                        });
+                    }
+                } else {
+                    doc.text('Musteri bilgisi mevcut degil', 20, currentY);
+                    currentY += 6;
+                }
+                
+                // Separator line
+                currentY += 5;
+                doc.line(20, currentY, 190, currentY);
+                currentY += 10;
+                
+                // Products table header
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(9);
+                doc.text('URUN', 20, currentY);
+                doc.text('ADET', 110, currentY);
+                doc.text('FIYAT', 130, currentY);
+                doc.text('TOPLAM', 160, currentY);
+                
+                currentY += 3;
+                doc.line(20, currentY, 190, currentY);
+                currentY += 8;
+                
+                // Products
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                
+                console.log('📦 Ürünler işleniyor...', sale.items.length, 'adet');
+                
+                sale.items.forEach((item, index) => {
+                    const product = products.find(p => p.id === item.productId);
+                    const productName = product ? product.name : `Silinmis Urun (ID: ${item.productId})`;
+                    const itemTotal = item.quantity * item.price;
+                    
+                    console.log(`  - ${productName}: ${item.quantity} x ${item.price} = ${itemTotal}`);
+                    
+                    // Check if we need a new page
+                    if (currentY > 250) {
+                        console.log('📄 Yeni sayfa ekleniyor...');
+                        doc.addPage();
+                        currentY = 20;
+                    }
+                    
+                    // Product name with text wrapping
+                    const maxProductNameWidth = 85;
+                    const productLines = doc.splitTextToSize(productName, maxProductNameWidth);
+                    
+                    // Draw product info
+                    productLines.forEach((line, lineIndex) => {
+                        doc.text(line, 20, currentY + (lineIndex * 5));
+                    });
+                    
+                    // Quantity, price, total (aligned to the first line)
+                    doc.text(item.quantity.toString(), 110, currentY);
+                    doc.text(`${settings.currency}${item.price.toLocaleString('tr-TR')}`, 130, currentY);
+                    doc.text(`${settings.currency}${itemTotal.toLocaleString('tr-TR')}`, 160, currentY);
+                    
+                    currentY += Math.max(productLines.length * 5, 8) + 3;
+                });
+                
+                // Total section
+                currentY += 5;
+                doc.setLineWidth(0.8);
+                doc.line(20, currentY, 190, currentY);
+                currentY += 10;
+                
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.text('GENEL TOPLAM:', 110, currentY);
+                doc.setFontSize(14);
+                doc.text(`${settings.currency}${sale.total.toLocaleString('tr-TR')}`, 160, currentY);
+                
+                // Footer
+                currentY += 20;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(7);
+                doc.text('Bu fis elektronik ortamda olusturulmustur.', 20, currentY);
+                doc.text(`Olusturma Tarihi: ${new Date().toLocaleString('tr-TR')}`, 20, currentY + 5);
+                
+                // Generate filename with proper date format
+                const dateStr = sale.date.replace(/-/g, '');
+                const fileName = `Fis_${sale.invoiceNumber}_${dateStr}.pdf`;
+                console.log('💾 PDF dosya adı:', fileName);
+                
+                // Save PDF
+                doc.save(fileName);
+                console.log('✅ PDF başarıyla oluşturuldu ve indirildi!');
+                
+                return true;
+                
+            } catch (error) {
+                console.error('❌ PDF oluşturma hatası:', error);
+                console.error('Hata detayları:', {
+                    message: error.message,
+                    stack: error.stack,
+                    sale: sale
+                });
+                
+                alert(`❌ PDF oluşturulurken hata oluştu!\n\nHata: ${error.message}\n\nLütfen:\n1. Sayfayı yenileyin\n2. Tekrar deneyin\n3. Sorun devam ederse tarayıcınızı güncelleyin`);
+                return false;
+            }
+        }
+
+        function calculateSaleTotal() {
+            let total = 0;
+            document.querySelectorAll('.sale-item').forEach(item => {
+                const quantity = parseInt(item.querySelector('.sale-quantity').value) || 0;
+                const price = parseFloat(item.querySelector('.sale-price').value) || 0;
+                const itemTotal = quantity * price;
+                item.querySelector('.sale-total').textContent = `${settings.currency}${itemTotal.toLocaleString('tr-TR')}`;
+                total += itemTotal;
+            });
+            document.getElementById('grandTotal').textContent = `${settings.currency}${total.toLocaleString('tr-TR')}`;
+        }
+
+        // Data Management Functions
+        function exportData() {
+            const data = {
+                products,
+                customers,
+                sales,
+                settings,
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `stokpro-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Veriler başarıyla dışa aktarıldı!');
+        }
+
+        function importData() {
+            document.getElementById('importFile').click();
+        }
+
+        function resetData() {
+            if (confirm('TÜM VERİLER SİLİNECEK! Bu işlem geri alınamaz. Devam etmek istediğinizden emin misiniz?')) {
+                if (confirm('Son uyarı: Tüm ürünler, müşteriler, satışlar ve ayarlar silinecek. Emin misiniz?')) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+            updateCompanyDisplay();
+
+            // Company info click to edit
+            document.getElementById('companyInfo').addEventListener('click', () => {
+                document.querySelector('[data-tab="settings"]').click();
+            });
+
+            // Search and filter event listeners
+            document.getElementById('searchProduct').addEventListener('input', renderProducts);
+            document.getElementById('categoryFilter').addEventListener('change', renderProducts);
+            document.getElementById('brandFilter').addEventListener('change', renderProducts);
+            document.getElementById('conditionFilter').addEventListener('change', renderProducts);
+            document.getElementById('stockFilter').addEventListener('change', renderProducts);
+            document.getElementById('colorFilter').addEventListener('change', renderProducts);
+            document.getElementById('searchCustomer').addEventListener('input', renderCustomers);
+            document.getElementById('salesDateFrom').addEventListener('change', renderSales);
+            document.getElementById('salesDateTo').addEventListener('change', renderSales);
+            document.getElementById('salesCustomerSearch').addEventListener('input', renderSales);
+            document.getElementById('salesInvoiceSearch').addEventListener('input', renderSales);
+
+            // Clear filters button
+            document.getElementById('clearFilters').addEventListener('click', function() {
+                document.getElementById('searchProduct').value = '';
+                document.getElementById('categoryFilter').value = '';
+                document.getElementById('brandFilter').value = '';
+                document.getElementById('conditionFilter').value = '';
+                document.getElementById('stockFilter').value = '';
+                document.getElementById('colorFilter').value = '';
+                renderProducts();
+            });
+
+            // Clear sales filters button
+            document.getElementById('clearSalesFilters').addEventListener('click', function() {
+                document.getElementById('salesDateFrom').value = '';
+                document.getElementById('salesDateTo').value = '';
+                document.getElementById('salesCustomerSearch').value = '';
+                document.getElementById('salesInvoiceSearch').value = '';
+                renderSales();
+            });
+
+            // Quick action buttons
+            document.getElementById('quickSaleBtn').addEventListener('click', () => {
+                updateCustomerOptions();
+                updateSaleItemOptions();
+                document.getElementById('invoiceNumber').value = generateInvoiceNumber();
+                showModal('saleModal');
+            });
+
+            document.getElementById('quickAddProductBtn').addEventListener('click', () => {
+                document.getElementById('productForm').reset();
+                document.getElementById('productId').value = '';
+                showModal('productModal');
+            });
+
+            document.getElementById('quickAddCustomerBtn').addEventListener('click', () => {
+                document.getElementById('customerForm').reset();
+                document.getElementById('customerId').value = '';
+                showModal('customerModal');
+            });
+
+            // Main action buttons
+            document.getElementById('addProductBtn').addEventListener('click', () => {
+                document.getElementById('productForm').reset();
+                document.getElementById('productId').value = '';
+                showModal('productModal');
+            });
+
+            document.getElementById('newSaleBtn').addEventListener('click', () => {
+                updateCustomerOptions();
+                updateSaleItemOptions();
+                document.getElementById('invoiceNumber').value = generateInvoiceNumber();
+                showModal('saleModal');
+            });
+
+            document.getElementById('addCustomerBtn').addEventListener('click', () => {
+                document.getElementById('customerForm').reset();
+                document.getElementById('customerId').value = '';
+                showModal('customerModal');
+            });
+
+            // Modal close buttons
+            document.getElementById('cancelProduct').addEventListener('click', () => hideModal('productModal'));
+            document.getElementById('cancelSale').addEventListener('click', () => hideModal('saleModal'));
+            document.getElementById('cancelCustomer').addEventListener('click', () => hideModal('customerModal'));
+            document.getElementById('closeSerialModal').addEventListener('click', () => hideModal('serialModal'));
+            document.getElementById('closeSaleDetail').addEventListener('click', () => hideModal('saleDetailModal'));
+            document.getElementById('closeSaleDetailBtn').addEventListener('click', () => hideModal('saleDetailModal'));
+
+            // Settings event listeners
+            document.getElementById('companyForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                settings.companyName = document.getElementById('settingsCompanyName').value;
+                settings.companyPhone = document.getElementById('settingsCompanyPhone').value;
+                settings.companyEmail = document.getElementById('settingsCompanyEmail').value;
+                settings.companyAddress = document.getElementById('settingsCompanyAddress').value;
+                saveData();
+                updateCompanyDisplay();
+                alert('Firma bilgileri başarıyla kaydedildi!');
+            });
+
+            document.getElementById('settingsThemeToggle').addEventListener('click', function() {
+                document.documentElement.classList.toggle('dark');
+                const isDarkMode = document.documentElement.classList.contains('dark');
+                const slider = document.getElementById('settingsThemeSlider');
+                const toggle = this;
+                
+                if (isDarkMode) {
+                    slider.classList.add('translate-x-6');
+                    toggle.classList.add('bg-blue-600');
+                    toggle.classList.remove('bg-gray-200');
+                    document.getElementById('themeIcon').textContent = '☀️';
+                } else {
+                    slider.classList.remove('translate-x-6');
+                    toggle.classList.remove('bg-blue-600');
+                    toggle.classList.add('bg-gray-200');
+                    document.getElementById('themeIcon').textContent = '🌙';
+                }
+                
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                settings.theme = isDarkMode ? 'dark' : 'light';
+                saveData();
+            });
+
+            document.getElementById('saveSystemSettings').addEventListener('click', function() {
+                settings.minStock = parseInt(document.getElementById('settingsMinStock').value);
+                settings.currency = document.getElementById('settingsCurrency').value;
+                saveData();
+                alert('Sistem ayarları başarıyla kaydedildi!');
+                updateDashboard();
+            });
+
+            // Data management buttons
+            document.getElementById('exportData').addEventListener('click', exportData);
+            document.getElementById('importData').addEventListener('click', importData);
+            document.getElementById('resetData').addEventListener('click', resetData);
+            document.getElementById('exportSalesReport').addEventListener('click', exportSalesReport);
+
+            document.getElementById('importFile').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            if (data.products && data.customers && data.sales) {
+                                if (confirm('Mevcut veriler silinecek ve yeni veriler yüklenecek. Devam etmek istediğiniz emin misiniz?')) {
+                                    products = data.products;
+                                    customers = data.customers;
+                                    sales = data.sales;
+                                    if (data.settings) settings = data.settings;
+                                    saveData();
+                                    location.reload();
+                                }
+                            } else {
+                                alert('Geçersiz dosya formatı!');
+                            }
+                        } catch (error) {
+                            alert('Dosya okuma hatası!');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+
+            // Category change listener for serial numbers
+            document.getElementById('productCategory').addEventListener('change', updateSerialNumberSection);
+            document.getElementById('productStock').addEventListener('input', function() {
+                if (document.getElementById('productCategory').value === 'Telefon') {
+                    updateSerialInputs();
+                }
+            });
+
+            // Form submissions
+            document.getElementById('productForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const id = document.getElementById('productId').value;
+                const productData = {
+                    name: document.getElementById('productName').value,
+                    category: document.getElementById('productCategory').value,
+                    brand: document.getElementById('productBrand').value,
+                    model: document.getElementById('productModel').value,
+                    color: document.getElementById('productColor').value,
+                    storage: document.getElementById('productStorage').value,
+                    ram: document.getElementById('productRam').value,
+                    condition: document.getElementById('productCondition').value,
+                    warranty: document.getElementById('productWarranty').value,
+                    battery: document.getElementById('productBattery').value,
+                    screen: document.getElementById('productScreen').value,
+                    case: document.getElementById('productCase').value,
+                    box: document.getElementById('productBox').value,
+                    sim: document.getElementById('productSim').value,
+                    os: document.getElementById('productOS').value,
+                    features: document.getElementById('productFeatures').value,
+                    description: document.getElementById('productDescription').value,
+                    stock: parseInt(document.getElementById('productStock').value),
+                    minStock: parseInt(document.getElementById('productMinStock').value),
+                    costPrice: parseFloat(document.getElementById('productCostPrice').value),
+                    price: parseFloat(document.getElementById('productPrice').value),
+                    sold: 0
+                };
+
+                // Add serial numbers for phones
+                if (productData.category === 'Telefon') {
+                    productData.serialNumbers = collectSerialNumbers();
+                    
+                    // Validate serial numbers for phones
+                    if (productData.serialNumbers.length !== productData.stock) {
+                        alert(`Telefon kategorisi için ${productData.stock} adet seri numarası girmelisiniz.`);
+                        return;
+                    }
+                    
+                    // Check for duplicate serial numbers
+                    const duplicates = productData.serialNumbers.filter((serial, index) => 
+                        productData.serialNumbers.indexOf(serial) !== index
+                    );
+                    if (duplicates.length > 0) {
+                        alert('Seri numaraları tekrar edemez!');
+                        return;
+                    }
+                }
+
+                if (id) {
+                    const index = products.findIndex(p => p.id === parseInt(id));
+                    products[index] = { ...products[index], ...productData };
+                } else {
+                    const newId = Math.max(...products.map(p => p.id), 0) + 1;
+                    products.push({ id: newId, ...productData });
+                }
+
+                saveData();
+                hideModal('productModal');
+                renderProducts();
+                updateDashboard();
+            });
+
+            document.getElementById('customerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const id = document.getElementById('customerId').value;
+                const customerData = {
+                    name: document.getElementById('customerName').value,
+                    phone: document.getElementById('customerPhone').value,
+                    email: document.getElementById('customerEmail').value,
+                    address: document.getElementById('customerAddress').value,
+                    totalPurchases: 0
+                };
+
+                if (id) {
+                    const index = customers.findIndex(c => c.id === parseInt(id));
+                    customers[index] = { ...customers[index], ...customerData };
+                } else {
+                    const newId = Math.max(...customers.map(c => c.id), 0) + 1;
+                    customers.push({ id: newId, ...customerData });
+                }
+
+                saveData();
+                hideModal('customerModal');
+                renderCustomers();
+            });
+
+            // New customer button in sale modal
+            document.getElementById('addNewCustomerBtn').addEventListener('click', () => {
+                document.getElementById('customerForm').reset();
+                document.getElementById('customerId').value = '';
+                showModal('customerModal');
+            });
+
+            document.getElementById('saleForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const customerId = document.getElementById('saleCustomer').value ? parseInt(document.getElementById('saleCustomer').value) : null;
+                const invoiceNumber = document.getElementById('invoiceNumber').value;
+                
+                // Validate customer selection
+                if (!customerId) {
+                    alert('Lütfen bir müşteri seçin. Satış işlemi için müşteri bilgisi zorunludur.');
+                    return;
+                }
+                
+                const items = [];
+                let total = 0;
+                
+                document.querySelectorAll('.sale-item').forEach(item => {
+                    const productId = parseInt(item.querySelector('.sale-product').value);
+                    const quantity = parseInt(item.querySelector('.sale-quantity').value);
+                    const price = parseFloat(item.querySelector('.sale-price').value);
+                    
+                    if (productId && quantity > 0 && price > 0) {
+                        items.push({ productId, quantity, price });
+                        total += quantity * price;
+                        
+                        // Update product stock and sold count
+                        const product = products.find(p => p.id === productId);
+                        if (product) {
+                            product.stock -= quantity;
+                            product.sold = (product.sold || 0) + quantity;
+                        }
+                    }
+                });
+
+                if (items.length > 0) {
+                    const newId = Math.max(...sales.map(s => s.id), 0) + 1;
+                    const now = new Date();
+                    const sale = {
+                        id: newId,
+                        invoiceNumber,
+                        items,
+                        customerId,
+                        total,
+                        date: now.toISOString().split('T')[0],
+                        time: now.toTimeString().slice(0, 5)
+                    };
+                    
+                    sales.push(sale);
+                    
+                    // Update customer total purchases
+                    const customer = customers.find(c => c.id === customerId);
+                    if (customer) {
+                        customer.totalPurchases += total;
+                    }
+                    
+                    saveData();
+                    hideModal('saleModal');
+                    renderSales();
+                    updateDashboard();
+                    
+                    // Generate PDF receipt automatically
+                    console.log('🖨️ Satış tamamlandı, PDF fiş oluşturuluyor...');
+                    const pdfSuccess = generatePDFReceipt(sale);
+                    
+                    if (pdfSuccess) {
+                        alert('✅ Satış başarıyla tamamlandı!\n\n📄 PDF fiş indirildi.');
+                    } else {
+                        alert('✅ Satış başarıyla tamamlandı!\n\n⚠️ PDF fiş oluşturulamadı, ancak satış kaydedildi.\nFişi daha sonra "Satışlar" sekmesinden yazdırabilirsiniz.');
+                    }
+                } else {
+                    alert('Lütfen en az bir ürün ekleyin.');
+                }
+            });
+
+            // Sale item management
+            document.getElementById('addSaleItem').addEventListener('click', function() {
+                const container = document.getElementById('saleItems');
+                const newItem = container.children[0].cloneNode(true);
+                newItem.querySelectorAll('input, select').forEach(input => {
+                    input.value = input.type === 'number' ? (input.classList.contains('sale-quantity') ? '1' : '') : '';
+                });
+                newItem.querySelector('.sale-total').textContent = `${settings.currency}0`;
+                container.appendChild(newItem);
+                updateSaleItemOptions();
+            });
+
+            // Event delegation for dynamic elements
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('sale-product')) {
+                    const option = e.target.selectedOptions[0];
+                    if (option && option.dataset.price) {
+                        e.target.closest('.sale-item').querySelector('.sale-price').value = option.dataset.price;
+                        calculateSaleTotal();
+                    }
+                }
+                
+                if (e.target.classList.contains('sale-quantity') || e.target.classList.contains('sale-price')) {
+                    calculateSaleTotal();
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-item')) {
+                    if (document.querySelectorAll('.sale-item').length > 1) {
+                        e.target.closest('.sale-item').remove();
+                        calculateSaleTotal();
+                    }
+                }
+                
+                // Serial number management
+                if (e.target.classList.contains('add-serial')) {
+                    const container = document.getElementById('serialNumbers');
+                    const currentCount = container.querySelectorAll('.serial-input').length;
+                    const div = document.createElement('div');
+                    div.className = 'flex gap-2';
+                    div.innerHTML = `
+                        <input type="text" class="serial-input flex-1 px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Seri numarası ${currentCount + 1}">
+                        <button type="button" class="remove-serial text-red-600 hover:text-red-800 px-3 py-2 text-sm">×</button>
+                    `;
+                    container.appendChild(div);
+                }
+                
+                if (e.target.classList.contains('remove-serial')) {
+                    if (document.querySelectorAll('.serial-input').length > 1) {
+                        e.target.closest('.flex').remove();
+                    }
+                }
+            });
+        });
+
+        // Utility functions
+        function viewSaleDetails(id) {
+            const sale = sales.find(s => s.id === id);
+            if (!sale) return;
+            
+            const customer = sale.customerId ? customers.find(c => c.id === sale.customerId) : null;
+            
+            // Fill sale info
+            document.getElementById('detailInvoiceNumber').textContent = sale.invoiceNumber;
+            document.getElementById('detailDate').textContent = new Date(sale.date).toLocaleDateString('tr-TR');
+            document.getElementById('detailTime').textContent = sale.time;
+            
+            // Fill customer info
+            document.getElementById('detailCustomerName').textContent = customer ? customer.name : (sale.customerId ? 'Silinmiş Müşteri' : 'Müşteri Seçilmedi');
+            document.getElementById('detailCustomerPhone').textContent = customer ? customer.phone : '-';
+            document.getElementById('detailCustomerEmail').textContent = customer && customer.email ? customer.email : '-';
+            
+            // Fill products table
+            const tbody = document.getElementById('detailProductsTable');
+            let totalProfit = 0;
+            
+            tbody.innerHTML = sale.items.map(item => {
+                const product = products.find(p => p.id === item.productId);
+                const productName = product ? product.name : 'Silinmiş Ürün';
+                const itemTotal = item.quantity * item.price;
+                const itemProfit = product ? (item.price - (product.costPrice || 0)) * item.quantity : item.price * item.quantity;
+                totalProfit += itemProfit;
+                
+                return `
+                    <tr>
+                        <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                            <div class="font-medium">${productName}</div>
+                            ${product && product.brand ? `<div class="text-xs text-gray-500 dark:text-gray-400">${product.brand} ${product.model || ''}</div>` : ''}
+                            ${!product ? `<div class="text-xs text-red-500 dark:text-red-400">Ürün silinmiş (ID: ${item.productId})</div>` : ''}
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-900 dark:text-white text-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                ${item.quantity}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                            ${settings.currency}${item.price.toLocaleString('tr-TR')}
+                        </td>
+                        <td class="px-4 py-3 text-sm font-medium text-green-600">
+                            ${settings.currency}${itemTotal.toLocaleString('tr-TR')}
+                        </td>
+                        <td class="px-4 py-3 text-sm font-medium text-orange-600">
+                            ${settings.currency}${itemProfit.toLocaleString('tr-TR')}
+                            ${!product ? `<div class="text-xs text-gray-500">*Tahmini</div>` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Fill summary
+            document.getElementById('detailTotalAmount').textContent = `${settings.currency}${sale.total.toLocaleString('tr-TR')}`;
+            document.getElementById('detailTotalProfit').textContent = `${settings.currency}${totalProfit.toLocaleString('tr-TR')}`;
+            const profitMargin = sale.total > 0 ? ((totalProfit / sale.total) * 100).toFixed(1) : '0';
+            document.getElementById('detailProfitMargin').textContent = `%${profitMargin}`;
+            
+            // Set up print button
+            document.getElementById('printDetailReceipt').onclick = () => printReceipt(id);
+            
+            showModal('saleDetailModal');
+        }
+
+        function printReceipt(id) {
+            console.log('🖨️ Fiş yazdırma işlemi başlıyor, Satış ID:', id);
+            
+            try {
+                const sale = sales.find(s => s.id === id);
+                if (!sale) {
+                    console.error('❌ Satış bulunamadı, ID:', id);
+                    alert('❌ Satış kaydı bulunamadı!');
+                    return;
+                }
+                
+                console.log('📋 Yazdırılacak satış:', sale.invoiceNumber);
+                
+                const success = generatePDFReceipt(sale);
+                if (success) {
+                    console.log('✅ Fiş başarıyla yazdırıldı');
+                } else {
+                    console.log('❌ Fiş yazdırılamadı');
+                }
+                
+            } catch (error) {
+                console.error('❌ Fiş yazdırma hatası:', error);
+                alert(`❌ Fiş yazdırılırken hata oluştu!\n\nHata: ${error.message}\n\nLütfen tekrar deneyin.`);
+            }
+        }
+
+        // Export Sales Report Function
+        function exportSalesReport() {
+            try {
+                const dateFrom = document.getElementById('salesDateFrom').value;
+                const dateTo = document.getElementById('salesDateTo').value;
+                const customerSearch = document.getElementById('salesCustomerSearch').value.toLowerCase();
+                const invoiceSearch = document.getElementById('salesInvoiceSearch').value.toLowerCase();
+                
+                let filteredSales = sales.filter(sale => {
+                    let matchesDate = true;
+                    if (dateFrom && sale.date < dateFrom) matchesDate = false;
+                    if (dateTo && sale.date > dateTo) matchesDate = false;
+                    
+                    let matchesCustomer = true;
+                    if (customerSearch) {
+                        const customer = sale.customerId ? customers.find(c => c.id === sale.customerId) : null;
+                        const customerName = customer ? customer.name.toLowerCase() : '';
+                        matchesCustomer = customerName.includes(customerSearch);
+                    }
+                    
+                    let matchesInvoice = true;
+                    if (invoiceSearch) {
+                        matchesInvoice = sale.invoiceNumber.toLowerCase().includes(invoiceSearch);
+                    }
+                    
+                    return matchesDate && matchesCustomer && matchesInvoice;
+                });
+                
+                // Create CSV content
+                let csvContent = 'Tarih,Saat,Fatura No,Müşteri,Ürünler,Toplam Tutar,Kar,Kar Marjı\n';
+                
+                filteredSales.forEach(sale => {
+                    const customer = sale.customerId ? customers.find(c => c.id === sale.customerId) : null;
+                    const customerName = customer ? customer.name : (sale.customerId ? 'Silinmiş Müşteri' : 'Müşteri Seçilmedi');
+                    const productNames = sale.items.map(item => {
+                        const product = products.find(p => p.id === item.productId);
+                        return product ? `${product.name} (${item.quantity})` : `Silinmiş Ürün (${item.quantity})`;
+                    }).join('; ');
+                    
+                    const saleProfit = sale.items.reduce((profit, item) => {
+                        const product = products.find(p => p.id === item.productId);
+                        if (product) {
+                            return profit + ((item.price - (product.costPrice || 0)) * item.quantity);
+                        }
+                        // For deleted products, assume 0 cost (full price as profit)
+                        return profit + (item.price * item.quantity);
+                    }, 0);
+                    
+                    const profitMargin = sale.total > 0 ? ((saleProfit / sale.total) * 100).toFixed(1) : '0';
+                    
+                    csvContent += `${sale.date},${sale.time},${sale.invoiceNumber},"${customerName}","${productNames}",${sale.total},${saleProfit},${profitMargin}%\n`;
+                });
+                
+                // Create and download file
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `satislar-raporu-${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                alert(`${filteredSales.length} satış kaydı CSV formatında indirildi!`);
+            } catch (error) {
+                console.error('Rapor dışa aktarma hatası:', error);
+                alert('Rapor dışa aktarılırken bir hata oluştu.');
+            }
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'974191273673695c',t:'MTc1NjAyNTA1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
